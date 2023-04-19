@@ -105,9 +105,11 @@ func (h *userHandler) CheckEmail(c *gin.Context){
 	}
 
 	// membuat metaMessage di response
-	metaMessage := "Email sudah terdaftar"
+	var metaMessage string
 	if checkEmail {
 		metaMessage = "Email is available"
+	}else{
+		metaMessage = "Email not available"
 	}
 
 
