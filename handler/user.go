@@ -16,6 +16,7 @@ func NewUserHandler(userService user.Service) *userHandler{
 	return &userHandler{userService}
 }
 
+// Handler Register
 func (h *userHandler) RegisterUser(c *gin.Context){
 	// Tangkap Inputan User
 	// Map inputan dari user ke struct Register User Input
@@ -76,4 +77,41 @@ func (h *userHandler) Login(c *gin.Context){
 	response := helper.APIResponse("Berhasil Login", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
+}
+
+// handler chek email
+func (h *userHandler) CheckEmail(c *gin.Context){
+	var input user.CheckEmailAvailable
+	err := c.ShouldBindJSON(&input)
+
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMesaage := gin.H{"errors": errors}
+		resoponse := helper.APIResponse("Cek email gagal", http.StatusUnprocessableEntity, "error", errorMesaage)
+		c.JSON(http.StatusUnprocessableEntity, resoponse)
+		return
+	}
+
+	checkEmail, err := h.userService.CheckEmail(input)
+	if err != nil {
+		errorMessage := gin.H{"errors": "Server error"}
+		response := helper.APIResponse("Cek Email Gagal", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	data := gin.H{
+		"is_available": checkEmail,
+	}
+
+	// membuat metaMessage di response
+	metaMessage := "Email sudah terdaftar"
+	if checkEmail {
+		metaMessage = "Email is available"
+	}
+
+
+	response := helper.APIResponse(metaMessage, http.StatusOK, "success", data)
+	c.JSON(http.StatusOK, response)
+
 }
