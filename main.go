@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"yayasuryana/auth"
 	"yayasuryana/handler"
 	"yayasuryana/user"
 
@@ -20,8 +21,10 @@ func main(){
 	}
 
 	 userRepository := user.NewRepository(db)
-	 userService := user.NewService(userRepository)
-	 userHandler := handler.NewUserHandler(userService)
+	 userService 	:= user.NewService(userRepository)
+	 authService 	:= auth.NewService()
+	 userHandler 	:= handler.NewUserHandler(userService, authService)
+
 
 	 router := gin.Default()
 	 api 	:= router.Group("/api/v1")

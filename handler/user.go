@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"yayasuryana/auth"
 	"yayasuryana/helper"
 	"yayasuryana/user"
 
@@ -11,10 +12,11 @@ import (
 
 type userHandler struct{
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler{
-	return &userHandler{userService}
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler{
+	return &userHandler{userService, authService}
 }
 
 // Handler Register
@@ -43,7 +45,15 @@ func (h *userHandler) RegisterUser(c *gin.Context){
 		return
 	}
 
-	fomatter := user.FormatUser(newUser, "tokentokentoken")
+	// generate jwt token
+	token, err := h.authService.GenerateToken(newUser.ID)
+	if err != nil {
+		response := helper.APIResponse("Gagal membuat akun", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest,response)
+		return
+	}
+
+	fomatter := user.FormatUser(newUser, token)
 	response := helper.APIResponse("Berhasil membuat akun", http.StatusOK, "success", fomatter)
 
 	c.JSON(http.StatusOK, response)
@@ -74,7 +84,16 @@ func (h *userHandler) Login(c *gin.Context){
 		c.JSON(http.StatusBadRequest,response)
 		return
 	}
-	formatter := user.FormatUser(loginUser, "token token token")
+
+	// generate token auth untuk login
+	token, err := h.authService.GenerateToken(loginUser.ID)
+	if err != nil {
+		response := helper.APIResponse("Login Gagal", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest,response)
+		return
+	}
+
+	formatter := user.FormatUser(loginUser, token)
 	response := helper.APIResponse("Berhasil Login", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
