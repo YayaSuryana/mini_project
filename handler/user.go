@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"yayasuryana/helper"
 	"yayasuryana/user"
@@ -116,4 +117,40 @@ func (h *userHandler) CheckEmail(c *gin.Context){
 	response := helper.APIResponse(metaMessage, http.StatusOK, "success", data)
 	c.JSON(http.StatusOK, response)
 
+}
+
+func (h *userHandler) UploadAvatar(c *gin.Context){
+
+	// tangkap input dari user, bukan menggunakan param json, melainkan form file
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.APIResponse("upload avatar Gagal", http.StatusBadRequest, "error", data)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	// Harunysa dapet dari JWT.
+	userID := 1
+	path := fmt.Sprintf("img/%d-%s", userID, file.Filename)
+
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		data := gin.H{"is_uploaded":false}
+		response := helper.APIResponse("upload avatar gagal", http.StatusBadRequest, "error", data)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	
+	_, err = h.userService.SaveAvatar(userID, path)
+	if  err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.APIResponse("upload avatar gagal", http.StatusBadRequest, "error", data)
+		c.JSON(http.StatusBadRequest, response)
+	}
+
+	data := gin.H{"is_uploaded": true}
+	response := helper.APIResponse("upload avatar berhasil", http.StatusOK, "success", data)
+	c.JSON(http.StatusOK, response)
 }
