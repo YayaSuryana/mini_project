@@ -11,6 +11,7 @@ type Service interface{
 	Login(input LoginInput) (User, error)
 	CheckEmail(input CheckEmailAvailable) (bool, error)
 	SaveAvatar(ID int, filelocation string) (User, error)
+	GetUserByID(ID int) (User, error)
 }
 // struct memakai devendenci dari repository dengan implement instace lewat fun NewService
 type service struct{
@@ -94,4 +95,17 @@ func (s *service) SaveAvatar(ID int, filelocation string) (User, error){
 		return avatarUpload, err
 	}
 	return avatarUpload, nil
+}
+
+func (s *service) GetUserByID(ID int) (User, error){
+	user, err := s.repository.FindByID(ID)
+
+	if err != nil {
+		return user, err
+	}
+
+	if user.ID == 0 {
+		return user, errors.New("tidak menemukan user dengan id ini")
+	}
+	return user, nil
 }

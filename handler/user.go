@@ -149,8 +149,10 @@ func (h *userHandler) UploadAvatar(c *gin.Context){
 		return
 	}
 
-	// Harunysa dapet dari JWT.
-	userID := 1
+	// mendapatkan set context (middleware) yang didapatkan dari balikan func authmiddleware dengan bentuk integer
+	// key nya adalah currentUser lalu merubah currentUser menjadi user.User
+	currentUser := c.MustGet("currentUser").(user.User)
+	userID := currentUser.ID
 	path := fmt.Sprintf("img/%d-%s", userID, file.Filename)
 
 	err = c.SaveUploadedFile(file, path)
