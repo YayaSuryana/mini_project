@@ -15,6 +15,7 @@ type Kampanye struct{
 	Slug				string
 	CreatedAt			time.Time
 	UpdatedAt			time.Time
+	KampanyeImages		[]KampanyeImage
 }
 
 type KampanyeImage struct{
