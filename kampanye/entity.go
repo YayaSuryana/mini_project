@@ -1,6 +1,9 @@
 package kampanye
 
-import "time"
+import (
+	"time"
+	"yayasuryana/user"
+)
 
 type Kampanye struct{
 	ID 					int
@@ -16,6 +19,7 @@ type Kampanye struct{
 	CreatedAt			time.Time
 	UpdatedAt			time.Time
 	KampanyeImages		[]KampanyeImage
+	User 				user.User
 }
 
 type KampanyeImage struct{
