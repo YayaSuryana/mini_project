@@ -7,6 +7,7 @@ import (
 	"yayasuryana/auth"
 	"yayasuryana/handler"
 	"yayasuryana/helper"
+	"yayasuryana/kampanye"
 	"yayasuryana/user"
 
 	"github.com/dgrijalva/jwt-go"
@@ -25,9 +26,15 @@ func main(){
 	}
 
 	 userRepository := user.NewRepository(db)
+	 kampanyeRepository := kampanye.NewRepository(db)
+
 	 userService 	:= user.NewService(userRepository)
+	 kampanyeService := kampanye.NewService(kampanyeRepository)
+
+	 
 	 authService 	:= auth.NewService()
 	 userHandler 	:= handler.NewUserHandler(userService, authService)
+	 kampanyeHandler := handler.NewKampanyeHandler(kampanyeService)
 
 
 	 router := gin.Default()
@@ -36,6 +43,8 @@ func main(){
 	 api.POST("/login", userHandler.Login)
 	 api.POST("/email_checkers", userHandler.CheckEmail)
 	 api.POST("/avatar", AuthMiddleware(authService, userService), userHandler.UploadAvatar)
+	 api.GET("/kampanye", kampanyeHandler.GetKampanye)
+
 	 router.Run()	   
 }
 
