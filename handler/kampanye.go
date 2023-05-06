@@ -27,13 +27,13 @@ func NewKampanyeHandler(service kampanye.Service) *kampanyeHandler{
 func(h *kampanyeHandler) GetKampanye(c *gin.Context){
 	userID, _ := strconv.Atoi(c.Query("user_id"))
 
-	kampanye, err := h.service.GetKampanye(userID)
+	kampanyes, err := h.service.GetKampanye(userID)
 	if err != nil {
 		response := helper.APIResponse("Error Get Kampanye", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	response := helper.APIResponse("List Kampanye", http.StatusOK, "success", kampanye)
+	response := helper.APIResponse("List Kampanye", http.StatusOK, "success", kampanye.FormatKampanyes(kampanyes))
 	c.JSON(http.StatusOK, response)
 }
 

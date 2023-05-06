@@ -39,6 +39,7 @@ func main(){
 
 	 router := gin.Default()
 	 api 	:= router.Group("/api/v1")
+	 router.Static("/images","./img")
 	 api.POST("/users", userHandler.RegisterUser)
 	 api.POST("/login", userHandler.Login)
 	 api.POST("/email_checkers", userHandler.CheckEmail)
