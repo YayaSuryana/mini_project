@@ -30,9 +30,8 @@ func main(){
 
 	 userService 	:= user.NewService(userRepository)
 	 kampanyeService := kampanye.NewService(kampanyeRepository)
-
-	 
 	 authService 	:= auth.NewService()
+
 	 userHandler 	:= handler.NewUserHandler(userService, authService)
 	 kampanyeHandler := handler.NewKampanyeHandler(kampanyeService)
 
@@ -46,6 +45,7 @@ func main(){
 	 api.POST("/avatar", AuthMiddleware(authService, userService), userHandler.UploadAvatar)
 	 api.GET("/kampanye", kampanyeHandler.GetKampanyes)
 	 api.GET("/kampanye/:id", kampanyeHandler.GetKampanye)
+	 api.POST("/kampanye", AuthMiddleware(authService,userService), kampanyeHandler.CreateKampanye)
 
 	 router.Run()	   
 }

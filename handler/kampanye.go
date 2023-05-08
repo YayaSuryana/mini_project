@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"yayasuryana/helper"
 	"yayasuryana/kampanye"
+	"yayasuryana/user"
 
 	"github.com/gin-gonic/gin"
 )
@@ -61,3 +62,36 @@ func (h *kampanyeHandler) GetKampanye(c *gin.Context){
 	c.JSON(http.StatusOK,response)
 }
 
+// tankap parameter dari user input ke struct input
+// note : current user diambil dari jwt/handler
+// panggil user service parameternya input struct (sekaligus buat slug otomatis)
+// panggil repository untuk simpan data kampanye baru
+
+func (h *kampanyeHandler) CreateKampanye(c *gin.Context){
+	var input kampanye.CreateKampanyeInput
+
+	err := c.ShouldBindJSON(&input)
+	if err != nil{
+		errors := helper.FormatValidationError(err)
+		errorMesaage := gin.H{"errors": errors}
+		resoponse := helper.APIResponse("Data baru gagal dibuat", http.StatusUnprocessableEntity, "error", errorMesaage)
+		c.JSON(http.StatusUnprocessableEntity, resoponse)
+		return
+	}
+
+	// mendapatkan set context (middleware) yang didapatkan dari balikan func authmiddleware dengan bentuk integer
+	// key nya adalah currentUser lalu merubah currentUser menjadi user.User
+	currentUser := c.MustGet("currentUser").(user.User)
+	input.User = currentUser
+
+	newKampanye, err := h.service.CreateKampanye(input)
+
+	if err != nil {
+		resoponse := helper.APIResponse("Data baru gagal dibuat", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, resoponse)
+		return
+	}
+
+	resoponse := helper.APIResponse("Data baru berhasil dibuat", http.StatusOK, "success", kampanye.FormatKampanye(newKampanye))
+	c.JSON(http.StatusOK, resoponse)
+}
