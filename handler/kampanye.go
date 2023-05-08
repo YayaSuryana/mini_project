@@ -24,7 +24,7 @@ func NewKampanyeHandler(service kampanye.Service) *kampanyeHandler{
 	return &kampanyeHandler{service}
 }
 
-//api/v1/kampanye
+//api/v1/kampanye 
 func(h *kampanyeHandler) GetKampanyes(c *gin.Context){
 	userID, _ := strconv.Atoi(c.Query("user_id"))
 
@@ -93,5 +93,49 @@ func (h *kampanyeHandler) CreateKampanye(c *gin.Context){
 	}
 
 	resoponse := helper.APIResponse("Data baru berhasil dibuat", http.StatusOK, "success", kampanye.FormatKampanye(newKampanye))
+	c.JSON(http.StatusOK, resoponse)
+}
+
+// user memasukan inputan
+// handler 
+// mapping inputan ke inputan struct (inputan update & uri)
+// inputan user dan uri di passing ke service
+// service (find kampanye by id, tangkap parameter sama ketika input)
+// repository update data kampanye
+
+func (h *kampanyeHandler) UpdateKampanye(c *gin.Context){
+	var inputID kampanye.GetKampanyeDetailInput
+	err := c.ShouldBindUri(&inputID)
+	if err != nil {
+		response := helper.APIResponse("Update data kampanye gagal", http.StatusBadRequest, "error",nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+
+	// input data
+	var inputData kampanye.CreateKampanyeInput
+	
+	err = c.ShouldBindJSON(&inputData)
+	if err != nil{
+		errors := helper.FormatValidationError(err)
+		errorMesaage := gin.H{"errors": errors}
+		resoponse := helper.APIResponse("Update data kampanye gagal", http.StatusUnprocessableEntity, "error", errorMesaage)
+		c.JSON(http.StatusUnprocessableEntity, resoponse)
+		return
+	}
+	// set id yang melakukan request agar dilakukan pengecekan di service
+	currentUser := c.MustGet("currentUser").(user.User)
+	inputData.User = currentUser
+
+	updateKampanye, err := h.service.UpdateKampanye(inputID, inputData)
+
+	if err != nil {
+		resoponse := helper.APIResponse("Update data kampanye gagal", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, resoponse)
+		return
+	}
+
+	resoponse := helper.APIResponse("Data kampanye berhasil diupdate", http.StatusOK, "success", kampanye.FormatKampanye(updateKampanye))
 	c.JSON(http.StatusOK, resoponse)
 }
