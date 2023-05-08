@@ -8,6 +8,8 @@ type Repository interface{
 	FindByID(ID int) (Kampanye, error)
 	Save(kampanye Kampanye) (Kampanye, error)
 	Update(kampanye Kampanye) (Kampanye, error)
+	CreateImage(kampanyeImage KampanyeImage) (KampanyeImage, error)
+	MarkNonIsPrimary(kampanyeID int) (bool, error)
 }
 
 type repository struct{
@@ -70,4 +72,26 @@ func (r *repository) Update(kampanye Kampanye) (Kampanye, error){
 	}
 
 	return kampanye, nil
+}
+
+// save ke table
+func (r *repository) CreateImage(kampanyeImage KampanyeImage) (KampanyeImage, error){
+	err := r.db.Save(&kampanyeImage).Error
+	if err != nil {
+		return kampanyeImage, err
+	}
+
+	return kampanyeImage, nil
+}
+
+// merubah is_primary jika ingin mengupdate is_primary true dan menimpanya menjadi false diganti dengan yang lain
+func (r *repository) MarkNonIsPrimary(kampanyeID int) (bool, error){
+	// update kampanye_images set is_primary = false where kampanye_id = (dari parameter)
+
+	err := r.db.Model(&KampanyeImage{}).Where("kampanye_id = ?", kampanyeID).Update("is_primary", false).Error
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

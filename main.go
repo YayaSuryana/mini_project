@@ -43,10 +43,12 @@ func main(){
 	 api.POST("/login", userHandler.Login)
 	 api.POST("/email_checkers", userHandler.CheckEmail)
 	 api.POST("/avatar", AuthMiddleware(authService, userService), userHandler.UploadAvatar)
+
 	 api.GET("/kampanye", kampanyeHandler.GetKampanyes)
 	 api.GET("/kampanye/:id", kampanyeHandler.GetKampanye)
 	 api.POST("/kampanye", AuthMiddleware(authService,userService), kampanyeHandler.CreateKampanye)
 	 api.PUT("/kampanye/:id", AuthMiddleware(authService, userService), kampanyeHandler.UpdateKampanye)
+	 api.POST("/kampanye-images", AuthMiddleware(authService, userService), kampanyeHandler.UploadImage)
 	 router.Run()	   
 }
 

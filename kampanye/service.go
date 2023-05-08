@@ -12,6 +12,7 @@ type Service interface {
 	GetKampanyeByID(input GetKampanyeDetailInput) (Kampanye, error)
 	CreateKampanye(input CreateKampanyeInput) (Kampanye, error)
 	UpdateKampanye(inputID GetKampanyeDetailInput, inputData CreateKampanyeInput) (Kampanye, error)
+	SaveKampanyeImage(input CreateKampanyeImage, fileLocation string) (KampanyeImage, error)
 }
 
 type service struct {
@@ -98,4 +99,36 @@ func (s *service) UpdateKampanye(inputID GetKampanyeDetailInput, inputData Creat
 
 	return updateKampanye, nil
 
+}
+
+// save kampanye image
+func (s *service) SaveKampanyeImage(input CreateKampanyeImage, fileLocation string) (KampanyeImage, error){
+	kampanye, err := s.repository.FindByID(input.KampanyeID)
+	if err != nil {
+		return KampanyeImage{}, err
+	}
+	if kampanye.UserID != input.User.ID {
+		return KampanyeImage{}, errors.New("Akses ditolak, kamu bukan owner dari kampanye ini!")
+	}
+	isPrimary := 0
+	if input.IsPrimary {
+		isPrimary = 1
+		_, err := s.repository.MarkNonIsPrimary(input.KampanyeID)
+		if err != nil {
+			return	KampanyeImage{}, err
+		}
+	}
+
+	kampanyeImage := KampanyeImage{}
+
+	kampanyeImage.KampanyeID = input.KampanyeID
+	kampanyeImage.IsPrimary = isPrimary
+	kampanyeImage.FileName = fileLocation
+
+	newKampanyeImage, err := s.repository.CreateImage(kampanyeImage)
+	if err != nil {
+		return newKampanyeImage, err
+	}
+
+	return newKampanyeImage, nil
 }
