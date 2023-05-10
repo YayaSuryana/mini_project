@@ -8,6 +8,7 @@ import (
 	"yayasuryana/handler"
 	"yayasuryana/helper"
 	"yayasuryana/kampanye"
+	"yayasuryana/transaksi"
 	"yayasuryana/user"
 
 	"github.com/dgrijalva/jwt-go"
@@ -27,13 +28,16 @@ func main(){
 
 	 userRepository := user.NewRepository(db)
 	 kampanyeRepository := kampanye.NewRepository(db)
+	 transaksiRepository := transaksi.NewRepository(db)
 
 	 userService 	:= user.NewService(userRepository)
 	 kampanyeService := kampanye.NewService(kampanyeRepository)
+	 transaksiService := transaksi.NewService(transaksiRepository, kampanyeRepository)
 	 authService 	:= auth.NewService()
 
 	 userHandler 	:= handler.NewUserHandler(userService, authService)
 	 kampanyeHandler := handler.NewKampanyeHandler(kampanyeService)
+	 transaksiHandler := handler.NewTransaksiHandler(transaksiService)
 
 
 	 router := gin.Default()
@@ -43,12 +47,15 @@ func main(){
 	 api.POST("/login", userHandler.Login)
 	 api.POST("/email_checkers", userHandler.CheckEmail)
 	 api.POST("/avatar", AuthMiddleware(authService, userService), userHandler.UploadAvatar)
-
+	 
+	//  kampanye
 	 api.GET("/kampanye", kampanyeHandler.GetKampanyes)
 	 api.GET("/kampanye/:id", kampanyeHandler.GetKampanye)
 	 api.POST("/kampanye", AuthMiddleware(authService,userService), kampanyeHandler.CreateKampanye)
 	 api.PUT("/kampanye/:id", AuthMiddleware(authService, userService), kampanyeHandler.UpdateKampanye)
 	 api.POST("/kampanye-images", AuthMiddleware(authService, userService), kampanyeHandler.UploadImage)
+
+	 api.GET("/kampanye/:id/transaksi",AuthMiddleware(authService, userService), transaksiHandler.GetKampanyeTransaksi)
 	 router.Run()	   
 }
 
