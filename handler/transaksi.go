@@ -48,3 +48,24 @@ func (h *transaksiHandler) GetKampanyeTransaksi(c *gin.Context){
 	response := helper.APIResponse("Kampanye detail transaksi", http.StatusOK, "success", transaksi.FormatKampanyeTransaksis(transaksis))
 	c.JSON(http.StatusOK, response)
 }
+
+// Get User Transaksi
+// handler
+// ambil nilai user dari jwt/middleware
+// service
+// repository => ambil data transaksi (preload kampanye)
+
+func (h *transaksiHandler) GetUserTransaksi(c *gin.Context){
+	currentUser := c.MustGet("currentUser").(user.User)
+	userID := currentUser.ID
+
+	userTransaksi, err := h.service.GetTransaksiByUserID(userID)
+	if err != nil {
+		response := helper.APIResponse("Gagal menampilkan user transaksi", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return	
+	}
+
+	response := helper.APIResponse("User transaksi", http.StatusOK, "success", transaksi.FormatUserTransaksis(userTransaksi))
+	c.JSON(http.StatusOK, response)
+}

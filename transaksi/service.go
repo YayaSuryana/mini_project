@@ -7,6 +7,7 @@ import (
 
 type Service interface{
 	GetTransaksiByKampanyeID(input GetKampanyeTrasaksiInput) ([]Transaksi, error)
+	GetTransaksiByUserID(userID int) ([]Transaksi, error)
 }
 
 type service struct{
@@ -30,6 +31,15 @@ func (s *service) GetTransaksiByKampanyeID(input GetKampanyeTrasaksiInput) ([]Tr
 		return []Transaksi{}, errors.New("Akses ditolak kamu bukan owner dari kampanye ini")
 	}
 	transaksi, err := s.repository.GetByKampanyeID(input.ID)
+	if err != nil {
+		return transaksi, err
+	}
+	return transaksi, nil
+}
+
+// transaksi by user id
+func (s *service) GetTransaksiByUserID(userID int) ([]Transaksi, error){
+	transaksi, err := s.repository.GetByUserID(userID)
 	if err != nil {
 		return transaksi, err
 	}
