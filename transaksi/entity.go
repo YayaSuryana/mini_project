@@ -13,8 +13,9 @@ type Transaksi struct {
 	Amount 		int
 	Status		string
 	Code 		string
-	Kampanye 	kampanye.Kampanye
-	User		user.User
+	PaymentURL 	string
+	User       	user.User
+	Kampanye   	kampanye.Kampanye
 	CreatedAt	time.Time
 	UpdatedAt	time.Time
 }

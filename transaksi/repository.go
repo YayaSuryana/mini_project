@@ -5,6 +5,8 @@ import "gorm.io/gorm"
 type Reqpository interface{
 	GetByKampanyeID(kampanyeID int) ([]Transaksi, error)
 	GetByUserID(UserID int) ([]Transaksi, error)
+	Save(transaksi Transaksi) (Transaksi, error)
+	Update(transaksi Transaksi) (Transaksi, error)
 }
 
 type repository struct{
@@ -36,5 +38,27 @@ func (r *repository) GetByUserID(UserID int) ([]Transaksi, error){
 	if err != nil {
 		return transaksi, err
 	}
+	return transaksi, nil
+}
+
+// create new transaksi
+func (r *repository) Save(transaksi Transaksi) (Transaksi, error){
+	err := r.db.Create(&transaksi).Error
+
+	if err != nil {
+		return	transaksi, err
+	}
+
+	return transaksi, nil
+}
+
+// untuk update payment url
+func (r *repository) Update(transaksi Transaksi) (Transaksi, error) {
+	err := r.db.Save(&transaksi).Error
+
+	if err != nil {
+		return transaksi, err
+	}
+
 	return transaksi, nil
 }

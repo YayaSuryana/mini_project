@@ -8,6 +8,7 @@ import (
 	"yayasuryana/handler"
 	"yayasuryana/helper"
 	"yayasuryana/kampanye"
+	"yayasuryana/payment"
 	"yayasuryana/transaksi"
 	"yayasuryana/user"
 
@@ -32,13 +33,13 @@ func main(){
 
 	 userService 	:= user.NewService(userRepository)
 	 kampanyeService := kampanye.NewService(kampanyeRepository)
-	 transaksiService := transaksi.NewService(transaksiRepository, kampanyeRepository)
+	 paymentService := payment.NewService()
+	 transaksiService := transaksi.NewService(transaksiRepository, kampanyeRepository, paymentService)
 	 authService 	:= auth.NewService()
 
 	 userHandler 	:= handler.NewUserHandler(userService, authService)
 	 kampanyeHandler := handler.NewKampanyeHandler(kampanyeService)
 	 transaksiHandler := handler.NewTransaksiHandler(transaksiService)
-
 
 	 router := gin.Default()
 	 api 	:= router.Group("/api/v1")
@@ -57,6 +58,7 @@ func main(){
 
 	 api.GET("/kampanye/:id/transaksi",AuthMiddleware(authService, userService), transaksiHandler.GetKampanyeTransaksi)
 	 api.GET("/transaksi", AuthMiddleware(authService, userService), transaksiHandler.GetUserTransaksi)
+	 api.POST("/transaksi", AuthMiddleware(authService, userService), transaksiHandler.CreateTransaksi)
 	 router.Run()	   
 }
 

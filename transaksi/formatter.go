@@ -79,3 +79,26 @@ func FormatUserTransaksis(transaksis []Transaksi) []UserTransaksiFormatter{
 	}
 	return transaksisFormatter
 }
+
+type TransaksiFormatter struct{
+	ID			int		`json:"id"`
+	KampanyeID	int		`json:"kampanye_id"`
+	UserID 		int		`json:"user_id"`
+	Amount		int 	`json:"amount"`
+	Status		string	`json:"status"`
+	Code 		string 	`json:"code"`
+	PaymentURL 	string	`json:"payment_url"`
+}
+
+func FormatTransaksi(transaksi Transaksi) TransaksiFormatter {
+	formatter := TransaksiFormatter{}
+	formatter.ID 		= 	transaksi.ID
+	formatter.KampanyeID = transaksi.KampanyeID
+	formatter.UserID	= transaksi.UserID
+	formatter.Amount	= transaksi.Amount
+	formatter.Status	= transaksi.Status
+	formatter.Code		= transaksi.Code
+	formatter.PaymentURL= transaksi.PaymentURL
+
+	return formatter
+}
